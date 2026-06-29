@@ -1,0 +1,206 @@
+{
+  "name": "github-pr-viewer",
+  "displayName": "GitHub PR Viewer",
+  "description": "View your GitHub Pull Requests from any organization directly in VS Code's sidebar — with status tracking, rich details, and zero configuration.",
+  "version": "0.1.0",
+  "publisher": "nikhil-mahara",
+  "author": {
+    "name": "Nikhil Mahara"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nikhil-mahara/github-pr-viewer"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "SCM Providers"
+  ],
+  "keywords": [
+    "github",
+    "pull-request",
+    "pr",
+    "organization",
+    "code-review",
+    "git"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "github-pr-viewer-container",
+          "title": "GitHub PRs",
+          "icon": "resources/pr-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "github-pr-viewer-container": [
+        {
+          "id": "github-pr-viewer",
+          "name": "Pull Requests",
+          "contextualTitle": "GitHub PR Viewer"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "github-pr-viewer",
+        "contents": "Sign in to GitHub to view your Pull Requests.\n[Sign in with GitHub](command:github-pr-viewer.authenticate)\nOr use a [Personal Access Token](command:github-pr-viewer.authenticatePAT)."
+      }
+    ],
+    "commands": [
+      {
+        "command": "github-pr-viewer.authenticate",
+        "title": "Sign in with GitHub",
+        "category": "GitHub PR Viewer",
+        "icon": "$(sign-in)"
+      },
+      {
+        "command": "github-pr-viewer.authenticatePAT",
+        "title": "Sign in with Personal Access Token",
+        "category": "GitHub PR Viewer"
+      },
+      {
+        "command": "github-pr-viewer.refresh",
+        "title": "Refresh PR List",
+        "category": "GitHub PR Viewer",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "github-pr-viewer.logout",
+        "title": "Sign Out",
+        "category": "GitHub PR Viewer",
+        "icon": "$(sign-out)"
+      },
+      {
+        "command": "github-pr-viewer.showPRDetails",
+        "title": "Show PR Details",
+        "category": "GitHub PR Viewer",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "github-pr-viewer.openOnGitHub",
+        "title": "Open on GitHub",
+        "category": "GitHub PR Viewer",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "github-pr-viewer.filterByState",
+        "title": "Filter PRs by State",
+        "category": "GitHub PR Viewer",
+        "icon": "$(filter)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "github-pr-viewer.refresh",
+          "when": "view == github-pr-viewer",
+          "group": "navigation@1"
+        },
+        {
+          "command": "github-pr-viewer.filterByState",
+          "when": "view == github-pr-viewer",
+          "group": "navigation@2"
+        },
+        {
+          "command": "github-pr-viewer.logout",
+          "when": "view == github-pr-viewer",
+          "group": "overflow@1"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "github-pr-viewer.showPRDetails",
+          "when": "viewItem == pr",
+          "group": "inline@1"
+        },
+        {
+          "command": "github-pr-viewer.openOnGitHub",
+          "when": "viewItem == pr",
+          "group": "inline@2"
+        }
+      ]
+    },
+    "configuration": [
+      {
+        "title": "GitHub PR Viewer",
+        "properties": {
+          "github-pr-viewer.companyDomains": {
+            "type": "array",
+            "default": [],
+            "description": "Company email domains to verify against (e.g., ['mycompany.com']). Leave empty to skip verification.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "github-pr-viewer.cacheTTL": {
+            "type": "number",
+            "default": 300,
+            "description": "Cache time-to-live in seconds (how long before data is re-fetched).",
+            "minimum": 30,
+            "maximum": 3600
+          },
+          "github-pr-viewer.autoRefresh": {
+            "type": "boolean",
+            "default": false,
+            "description": "Automatically refresh the PR list at regular intervals."
+          },
+          "github-pr-viewer.autoRefreshInterval": {
+            "type": "number",
+            "default": 300,
+            "description": "Auto-refresh interval in seconds (when auto-refresh is enabled).",
+            "minimum": 60,
+            "maximum": 3600
+          },
+          "github-pr-viewer.defaultPRState": {
+            "type": "string",
+            "default": "open",
+            "enum": [
+              "open",
+              "closed",
+              "all"
+            ],
+            "description": "Default filter for PR state."
+          },
+          "github-pr-viewer.maxReposPerOrg": {
+            "type": "number",
+            "default": 100,
+            "description": "Maximum number of repositories to scan per organization.",
+            "minimum": 10,
+            "maximum": 500
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "build": "node esbuild.js",
+    "build:watch": "node esbuild.js --watch",
+    "build:prod": "node esbuild.js --production",
+    "vscode:prepublish": "npm run build:prod",
+    "package": "npx @vscode/vsce package --no-dependencies",
+    "publish": "npx @vscode/vsce publish --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "esbuild": "^0.20.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "@octokit/rest": "^20.0.0"
+  }
+}
